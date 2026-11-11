@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Task 3 | PDA and CFG Demo</title>
+<style>
+:root{--ink:#172b3a;--muted:#5c6b78;--line:#d7e0e8;--soft:#f4f7fa;--accent:#285b7c;--good:#176b45;--bad:#a33434}
+*{box-sizing:border-box}body{margin:0;background:#f1f4f7;color:var(--ink);font:15px/1.55 Arial,Helvetica,sans-serif}
+header{background:#17364b;color:#fff;padding:28px max(22px,calc((100vw - 1080px)/2)) 24px}
+header p{margin:5px 0 0;color:#d5e3ed}main{max-width:1080px;margin:26px auto;padding:0 18px;display:grid;grid-template-columns:340px 1fr;gap:18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;box-shadow:0 5px 18px #16344a0b}
+label{display:block;font-weight:700;margin:0 0 7px}select,input,button{font:inherit}select,input{width:100%;padding:11px 12px;border:1px solid #b9c8d4;border-radius:8px;background:white;color:var(--ink)}
+input{margin-top:8px}button{border:0;border-radius:8px;padding:10px 15px;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;margin-top:12px}button.secondary{background:#e7eef4;color:#21445d;margin:7px 5px 0 0}
+.hint{color:var(--muted);font-size:13px;margin:10px 0}.result{margin:16px 0 8px;padding:13px;border-radius:8px;font-weight:700}.good{background:#e5f4eb;color:var(--good)}.bad{background:#fae9e9;color:var(--bad)}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#172a38;color:#e4edf4;padding:14px;border-radius:8px;font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;min-height:130px}
+.figure{margin-top:15px}.figure img{max-width:100%;max-height:320px;object-fit:contain;border:1px solid var(--line);border-radius:8px;background:white}.figure p{font-size:13px;color:var(--muted)}
+h2{font-size:19px;margin:0 0 14px}.sub{font-size:13px;color:var(--muted);margin:0 0 16px}
+@media(max-width:800px){main{grid-template-columns:1fr}header{padding:24px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Task 3 - PDA and CFG Case Studies</h1>
+  <p>CLA-2 individual demonstration | Delimiter checking, expression parsing, and palindromes</p>
+  <p>Chris Jero Harsha P · RA2411026050010</p>
+</header>
+<main>
+  <section class="card">
+    <h2>Run a validator</h2>
+    <p class="sub">Select a model, enter a string, and inspect the trace.</p>
+    <label for="machine">Application / case study</label>
+    <select id="machine">
+      <optgroup label="Task 3 · PDA and CFG">
+        <option value="brackets">Balanced delimiters</option><option value="expr">Arithmetic expression</option>
+        <option value="marked">Marked binary palindrome w#reverse(w)</option><option value="even">Unmarked even palindrome wwᴿ</option>
+      </optgroup>
+    </select>
+    <label for="value" style="margin-top:16px">Input string</label>
+    <input id="value" value="([]{})" autocomplete="off" spellcheck="false">
+    <button id="run">Validate and show trace</button>
+    <div class="hint" id="hint">Exactly six ASCII digits are accepted.</div>
+    <div id="result" class="result">Ready</div>
+    <h2 style="font-size:16px;margin-top:18px">Trace / explanation</h2>
+    <pre id="trace">Choose a model and run a sample.</pre>
+    <div class="figure">
+      <h2 style="font-size:16px">Related visualisation</h2>
+      <img id="diagram" src="diagrams/task2_otp_dfa.png" alt="OTP DFA diagram">
+      <p id="caption">Figure: DFA for an exact six-digit one-time passcode.</p>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Model summary</h2>
+    <div id="summary">
+      <p><b>OTP DFA</b> accepts strings containing exactly six digits. Any non-digit or seventh digit enters the trap state.</p>
+    </div>
+    <h2 style="font-size:17px;margin-top:22px">Example inputs</h2>
+    <div id="examples"></div>
+    <h2 style="font-size:17px;margin-top:24px">Scope note</h2>
+    <p class="hint">This page is a local demonstration of Task 3 stack-based models. It does not execute source code or provide a complete general-purpose programming-language parser.</p>
+  </section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const config = {
+ brackets:{hint:'Only (), [] and {} are permitted; every closer must match the most recent opener.',summary:'The PDA pushes opening delimiters and pops only matching closers. A right-end marker allows the machine to enter its final state only when the stack has returned to its bottom marker.',diagram:'diagrams/task3_balanced_brackets_dpda.png',caption:'Deterministic PDA for balanced delimiters.',examples:['{[()]}','([]{})','([)]','(()']},
+ expr:{hint:'Grammar supports identifiers or integers, parentheses, addition and multiplication.',summary:'The LL(1) grammar places multiplication at the T level and addition at the E level. The parser stack acts as the PDA memory and enforces precedence.',diagram:'diagrams/expression_ambiguous_tree_a.png',caption:'One grouping admitted by the ambiguous grammar E → E+E | E*E | (E) | id.',examples:['id+id*id','(id+id)*id','id+','id**id']},
+ marked:{hint:'Input format is w#reverse(w), where w uses only 0 and 1.',summary:'The # marker identifies the midpoint. The DPDA pushes the prefix and then matches/pops the mirrored suffix.',diagram:'diagrams/task3_marked_palindrome_dpda.png',caption:'Deterministic PDA for the marked binary-palindrome language.',examples:['001#100','011#110','01#01','0##0']},
+ even:{hint:'Accepts even-length binary palindromes without a midpoint marker.',summary:'The NPDA guesses the midpoint with an epsilon transition, then compares the remaining input with the stack in reverse order. The guess makes the machine nondeterministic.',diagram:'diagrams/task3_even_palindrome_npda.png',caption:'Nondeterministic PDA for the unmarked even-palindrome language.',examples:['0110','1001','001100','0101']}
+};
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function validateOTP(s){let state=0,rows=[];for(let i=0;i<s.length;i++){const c=s[i],before=state;state=(state<6&&/[0-9]/.test(c))?state+1:-1;rows.push(`${i+1}. '${c}' : q${before<0?'dead':before} -> ${state<0?'q_dead':'q'+state}`);}return {ok:state===6,trace:rows.join('\n')+`\nFinal state: ${state===6?'q6 (accepting)':state<0?'q_dead':'q'+state}`};}
+function validatePassword(s){let len=0,mask=0,rows=[];for(const c of s){len++;let cls='O',bit=0;if(/[A-Z]/.test(c)){cls='U';bit=1}else if(/[a-z]/.test(c)){cls='L';bit=2}else if(/[0-9]/.test(c)){cls='D';bit=4}else if('!@#$%&*?_+-='.includes(c)){cls='S';bit=8}const before=mask;mask|=bit;rows.push(`${len}. '${c}' (${cls}) : length=${len-1}, mask=${before.toString(2).padStart(4,'0')} -> length=${len}, mask=${mask.toString(2).padStart(4,'0')}`);if(cls==='O'||len>20)return {ok:false,trace:rows.join('\n')+'\nSink state reached.'};}return {ok:len>=10&&len<=20&&mask===15,trace:rows.join('\n')+`\nFinal length=${len}; required mask=1111; observed=${mask.toString(2).padStart(4,'0')}`};}
+function validateEmail(s){const re=/^[A-Za-z0-9]+(?:[._][A-Za-z0-9]+)*@[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*(?:\.[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*)*\.[A-Za-z]{2,}$/;let rows=[];for(let i=0;i<s.length;i++)rows.push(`${i+1}. '${s[i]}' -> character consumed by the e-mail syntax automaton`);return {ok:re.test(s),trace:rows.join('\n')+`\nFinal check: ${re.test(s)?'accepting TLD form':'no accepting path'}`};}
+function validateBrackets(s){let st=[],rows=[],match={')':'(',']':'[','}':'{'};for(let i=0;i<s.length;i++){let c=s[i];if('([{'.includes(c)){st.push(c);rows.push(`${i+1}. '${c}' : push; stack=${st.join('')}`)}else if(')]}'.includes(c)){if(st.at(-1)!==match[c])return {ok:false,trace:rows.join('\n')+`\n${i+1}. '${c}' mismatches stack top '${st.at(-1)||'empty'}' -> reject`};st.pop();rows.push(`${i+1}. '${c}' : matching pop; stack=${st.join('')||'Z'}`)}else{return {ok:false,trace:rows.join('\n')+`\nInvalid delimiter token '${c}' -> reject`}}}return {ok:st.length===0,trace:rows.join('\n')+`\nEnd marker: ${st.length===0?'stack at bottom marker; accept':'unclosed delimiter(s); reject'}`};}
+function validateExpr(s){const toks=s.match(/\d+|[A-Za-z_][A-Za-z0-9_]*|[()+*]/g)||[];if(toks.join('')!==s.replace(/\s+/g,''))return {ok:false,trace:'Lexical error: unsupported character.'};let i=0,rows=[];function factor(){if(toks[i]==='('){rows.push('F -> ( E )');i++;expr();if(toks[i]!==')')throw Error('missing )');i++;}else if(toks[i]&&/^\d+$|^[A-Za-z_]/.test(toks[i])){rows.push('F -> id');i++;}else throw Error('expected id or (');}function term(){factor();while(toks[i]==='*'){rows.push("T' -> * F T'");i++;factor();}}function expr(){term();while(toks[i]==='+'){rows.push("E' -> + T E'");i++;term();}}try{expr();if(i!==toks.length)throw Error(`unexpected token ${toks[i]}`);return {ok:true,trace:rows.join('\n')+'\nInput fully consumed; predictive parse accepts.'}}catch(e){return {ok:false,trace:rows.join('\n')+`\nReject: ${e.message}`}}}
+function validateMarked(s){const p=s.split('#');const ok=p.length===2&&/^[01]*$/.test(p[0]+p[1])&&p[0]===p[1].split('').reverse().join('');return {ok,trace:`Push prefix '${p[0]||''}' onto stack.\nRead midpoint marker #.\nCompare suffix '${p[1]||''}' against stack top in reverse order.\n${ok?'All symbols matched; accept.':'Marker count, alphabet, or mirror comparison failed; reject.'}`};}
+function validateEven(s){const ok=/^[01]*$/.test(s)&&s.length%2===0&&s===s.split('').reverse().join('');return {ok,trace:`NPDA pushes a prefix, then nondeterministically guesses the midpoint.\nInput length=${s.length}; ${s.length%2?'odd length':'even length'}.\n${ok?'A midpoint branch matches every remaining symbol; accept.':'No midpoint branch consumes the input and empties the working stack; reject.'}`};}
+function run(){const k=$('machine').value,s=$('value').value,c=config[k];let r=({otp:validateOTP,password:validatePassword,email:validateEmail,brackets:validateBrackets,expr:validateExpr,marked:validateMarked,even:validateEven})[k](s);$('result').className='result '+(r.ok?'good':'bad');$('result').textContent=r.ok?'ACCEPTED':'REJECTED';$('trace').textContent=r.trace;$('hint').textContent=c.hint;$('summary').innerHTML='<p>'+esc(c.summary)+'</p>';$('diagram').src=c.diagram;$('diagram').alt=c.caption;$('caption').textContent='Figure: '+c.caption;$('examples').innerHTML='';c.examples.forEach(x=>{let b=document.createElement('button');b.className='secondary';b.textContent=x;b.onclick=()=>{$('value').value=x;run()};$('examples').appendChild(b);});}
+$('machine').addEventListener('change',()=>{const k=$('machine').value;$('value').value=config[k].examples[0];run()});$('run').addEventListener('click',run);run();
+</script>
+</body>
+</html>

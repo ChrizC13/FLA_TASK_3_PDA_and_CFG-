@@ -1,0 +1,9 @@
+digraph B { rankdir=TB; graph [label="Balanced-delimiter stack procedure", labelloc=t, fontsize=18];
+    node [shape=box, style="rounded,filled", fillcolor="#EAF2F8", color="#315A78", fontname=Arial]; edge [fontname=Arial];
+    start [label="Read next delimiter"]; open [shape=diamond,label="Opening
+delimiter?"]; push [label="Push opener
+onto stack"]; match [shape=diamond,label="Closer matches
+stack top?"]; pop [label="Pop matching
+opener"]; reject [label="Reject",fillcolor="#FADBD8"]; end [shape=diamond,label="End of input
+and stack at bottom?"]; accept [label="Accept",fillcolor="#D5F5E3"];
+    start -> open; open -> push [label="yes"]; open -> match [label="no"]; push -> end; match -> pop [label="yes"]; match -> reject [label="no"]; pop -> end; end -> accept [label="yes"]; end -> start [label="no / continue"]; }

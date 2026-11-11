@@ -1,0 +1,9 @@
+digraph F { rankdir=LR; graph [label="Task 3 stack-based parsing pipeline", labelloc=t, fontsize=18];
+    node [shape=box, style="rounded,filled", fillcolor="#EAF2F8", color="#315A78", fontname=Arial];
+    edge [fontname=Arial, color="#526D82"];
+    input [label="Input tokens"]; grammar [label="CFG productions /
+parser table"]; stack [label="PDA stack
+(push / pop / match)"]; test [shape=diamond, label="All input consumed
+and stack condition met?"];
+    yes [label="Accept", fillcolor="#D5F5E3"]; no [label="Reject", fillcolor="#FADBD8"];
+    input -> grammar -> stack -> test; test -> yes [label="yes"]; test -> no [label="no"]; }

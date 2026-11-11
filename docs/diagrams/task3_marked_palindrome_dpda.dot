@@ -1,0 +1,15 @@
+digraph PDA {
+rankdir="LR";
+graph [label="Marked binary palindrome: deterministic PDA", labelloc="t", fontsize=18];
+node [shape=circle, style=filled, fillcolor="#EAF2F8", color="#315A78", fontname="Arial"];
+edge [fontname="Arial", color="#526D82"];
+start [shape=point, label=""];
+start -> "push";
+"pop" [shape=circle, fillcolor="#EAF2F8"];
+"push" [shape=circle, fillcolor="#EAF2F8"];
+"qf" [shape=doublecircle, fillcolor="#D5F5E3"];
+"pop" -> "pop" [label="0, 0 → ε; 1, 1 → ε"];
+"pop" -> "qf" [label="⊣, Z → Z"];
+"push" -> "pop" [label="#, Z → Z; #, 0 → 0; #, 1 → 1"];
+"push" -> "push" [label="0, Z → Z0; 1, Z → Z1; 0, 0 → 00; 1, 0 → 01; 0, 1 → 10; 1, 1 → 11"];
+}

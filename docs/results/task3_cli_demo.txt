@@ -1,0 +1,105 @@
+TASK 3 - PDA AND CFG CASE STUDIES
+
+1. Balanced delimiters
+S → ( S ) S | [ S ] S | { S } S | ε
+  Accepted
+    ACCEPT ''
+    ACCEPT '()'
+    ACCEPT '[]{}'
+    ACCEPT '([]{})'
+    ACCEPT '{[()()]}'
+    ACCEPT '(((())))'
+    ACCEPT '()[]{}([])'
+  Rejected
+    REJECT '('
+    REJECT ')('
+    REJECT '([)]'
+    REJECT '(]'
+    REJECT '{]'
+    REJECT '(()'
+    REJECT '([{}])}'
+  Sample stack trace for '{[()]}'
+    state=q     input-position=0  stack='Z'          action=START
+    state=q     input-position=1  stack='Z{'         action=read {; push {
+    state=q     input-position=2  stack='Z{['        action=read [; push [
+    state=q     input-position=3  stack='Z{[('       action=read (; push (
+    state=q     input-position=4  stack='Z{['        action=read ); pop (
+    state=q     input-position=5  stack='Z{'         action=read ]; pop [
+    state=q     input-position=6  stack='Z'          action=read }; pop {
+    state=qf    input-position=7  stack='Z'          action=end marker with empty nesting stack
+
+2. Arithmetic expressions
+E → T E'
+E' → + T E' | ε
+T → F T'
+T' → * F T' | ε
+F → ( E ) | id
+  Accepted
+    ACCEPT 'id'
+    ACCEPT 'id+id*id'
+    ACCEPT '(id+id)*id'
+    ACCEPT 'id*(id+id)'
+    ACCEPT '((id))'
+    ACCEPT 'id+id+id'
+  Rejected
+    REJECT ''
+    REJECT 'id+'
+    REJECT '+id'
+    REJECT 'id id'
+    REJECT '(id+id'
+    REJECT 'id*)id'
+    REJECT 'id+*id'
+  Precedence-aware evaluation: 2+3*4 = 14
+  Ambiguous grammar alternatives: 14 versus 20
+  Predictive PDA trace (accepted=True):
+    stack=[E $] input=[id + id * id $] action=E -> T E'
+    stack=[T E' $] input=[id + id * id $] action=T -> F T'
+    stack=[F T' E' $] input=[id + id * id $] action=F -> id
+    stack=[id T' E' $] input=[id + id * id $] action=match id
+    stack=[T' E' $] input=[+ id * id $] action=T' -> ε
+    stack=[E' $] input=[+ id * id $] action=E' -> + T E'
+    stack=[+ T E' $] input=[+ id * id $] action=match +
+    stack=[T E' $] input=[id * id $] action=T -> F T'
+    stack=[F T' E' $] input=[id * id $] action=F -> id
+    stack=[id T' E' $] input=[id * id $] action=match id
+    stack=[T' E' $] input=[* id $] action=T' -> * F T'
+    stack=[* F T' E' $] input=[* id $] action=match *
+    stack=[F T' E' $] input=[id $] action=F -> id
+    stack=[id T' E' $] input=[id $] action=match id
+    stack=[T' E' $] input=[$] action=T' -> ε
+    stack=[E' $] input=[$] action=E' -> ε
+    stack=[$] input=[$] action=accept
+
+3. Binary palindromes
+P → 0 P 0 | 1 P 1 | 0 | 1 | ε
+  Marked form accepted
+    ACCEPT '#'
+    ACCEPT '0#0'
+    ACCEPT '001#100'
+    ACCEPT '011#110'
+    ACCEPT '1010#0101'
+  Marked form rejected
+    REJECT ''
+    REJECT '01#01'
+    REJECT '001#101'
+    REJECT '0##0'
+    REJECT '001100'
+  Unmarked even form accepted
+    ACCEPT ''
+    ACCEPT '00'
+    ACCEPT '11'
+    ACCEPT '0110'
+    ACCEPT '1001'
+    ACCEPT '001100'
+    ACCEPT '10011001'
+  Unmarked even form rejected
+    REJECT '0'
+    REJECT '1'
+    REJECT '010'
+    REJECT '0101'
+    REJECT '0010'
+    REJECT '0111'
+  Determinism:
+   Bracket DPDA: True
+   Marked-palindrome DPDA: True
+   Unmarked-even-palindrome NPDA: False

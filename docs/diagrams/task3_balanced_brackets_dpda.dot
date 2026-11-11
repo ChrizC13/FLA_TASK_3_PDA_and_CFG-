@@ -1,0 +1,12 @@
+digraph PDA {
+rankdir="LR";
+graph [label="Balanced delimiters: deterministic PDA", labelloc="t", fontsize=18];
+node [shape=circle, style=filled, fillcolor="#EAF2F8", color="#315A78", fontname="Arial"];
+edge [fontname="Arial", color="#526D82"];
+start [shape=point, label=""];
+start -> "q";
+"q" [shape=circle, fillcolor="#EAF2F8"];
+"qf" [shape=doublecircle, fillcolor="#D5F5E3"];
+"q" -> "q" [label="(, Z → Z(; [, Z → Z[; {, Z → Z{; (, ( → ((; [, ( → ([; {, ( → ({; (, [ → [(; [, [ → [[; {, [ → [{; (, { → {(; [, { → {[; {, { → {{; ), ( → ε; ], [ → ε; }, { → ε"];
+"q" -> "qf" [label="⊣, Z → Z"];
+}

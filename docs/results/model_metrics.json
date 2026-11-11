@@ -1,0 +1,9 @@
+{
+  "balanced_bracket_pda_deterministic": true,
+  "marked_palindrome_pda_deterministic": true,
+  "even_palindrome_pda_deterministic": false,
+  "ambiguous_expression_example_values": [
+    14,
+    20
+  ]
+}
